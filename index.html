@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>枫之谷 M 装备粉末利润计算器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --bg-light: #f4f6f8;
+      --box-bg: #ffffff;
+      --accent: #f0ad4e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-light);
+      padding: 20px;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .section {
+      background: var(--box-bg);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+    }
+
+    .column {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 12px 0 6px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .result-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+    }
+
+    .result {
+      flex: 1;
+      min-width: 300px;
+      background: #fff8e1;
+      padding: 20px;
+      border-left: 6px solid var(--accent);
+      border-radius: 10px;
+      white-space: pre-line;
+    }
+
+    @media (max-width: 768px) {
+      .row, .result-container {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>枫之谷 M 装备粉末利润计算器</h1>
+
+<p><strong>背景介绍</strong><br>
+交易所目前有售卖紫色、橙色、绿色的 0 级武器和防具，副本产出的粉末可以用于升级，同时升级也需要消耗枫币。</p>
+
+<div class="section">
+  <h2>1. 升级装备所需粉末数量 & 枫币成本</h2>
+  <div class="row">
+    <div class="column">
+      <div>🟣 紫色装备</div>
+      <label>所需粉末（个）</label>
+      <input type="number" id="purplePowder">
+      <label>💰 枫币消耗（万）</label>
+      <input type="number" id="purpleCost">
+    </div>
+    <div class="column">
+      <div>🟠 橙色装备</div>
+      <label>所需粉末（个）</label>
+      <input type="number" id="orangePowder">
+      <label>💰 枫币消耗（万）</label>
+      <input type="number" id="orangeCost">
+    </div>
+    <div class="column">
+      <div>🟢 绿色装备</div>
+      <label>所需粉末（个）</label>
+      <input type="number" id="greenPowder">
+      <label>💰 枫币消耗（万）</label>
+      <input type="number" id="greenCost">
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>2. 行情价格与出售设定</h2>
+  <div class="row">
+    <div class="column">
+      <label>紫色装备市场最低价（万）</label>
+      <input type="number" id="purplePrice">
+      <label>紫色装备你的售价（万）</label>
+      <input type="number" id="purpleSell">
+    </div>
+    <div class="column">
+      <label>橙色装备市场最低价（万）</label>
+      <input type="number" id="orangePrice">
+      <label>橙色装备你的售价（万）</label>
+      <input type="number" id="orangeSell">
+    </div>
+    <div class="column">
+      <label>绿色装备市场最低价（万）</label>
+      <input type="number" id="greenPrice">
+      <label>绿色装备你的售价（万）</label>
+      <input type="number" id="greenSell">
+    </div>
+  </div>
+</div>
+
+<div class="section" style="text-align: center;">
+  <button onclick="calculateProfit()">计算利润</button>
+</div>
+
+<div class="result-container" id="result"></div>
+
+<script>
+function calculateProfit() {
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = '';
+  const powderValues = [];
+
+  const items = [
+    { id: 'purple', name: '紫色装备', color: '🟣' },
+    { id: 'orange', name: '橙色装备', color: '🟠' },
+    { id: 'green', name: '绿色装备', color: '🟢' },
+  ];
+
+  items.forEach(({ id, name, color }) => {
+    const powder = Number(document.getElementById(`${id}Powder`).value);
+    const cost = Number(document.getElementById(`${id}Cost`).value);
+    const price = Number(document.getElementById(`${id}Price`).value);
+    const sell = Number(document.getElementById(`${id}Sell`).value);
+
+    if (powder && cost >= 0 && price && sell) {
+      const netSell = sell * 0.9;
+      const totalCost = price + cost;
+      const profit = netSell - totalCost;
+      const powderValue = profit / powder;
+
+      powderValues.push({ label: name, value: powderValue });
+
+      const block = document.createElement('div');
+      block.className = 'result';
+      block.textContent = `${color} ${name}\n- 升级所需粉末：${powder} 个\n- 枫币消耗：${cost} 万\n- 市场最低价：${price} 万\n- 卖出价格：${sell} 万（扣除手续费后：${netSell.toFixed(2)} 万）\n- 总成本：${totalCost.toFixed(2)} 万\n- 总利润：${profit.toFixed(2)} 万\n- 单个粉末价值：${powderValue.toFixed(2)} 万`;
+      resultDiv.appendChild(block);
+    }
+  });
+
+  if (powderValues.length >= 2) {
+    powderValues.sort((a, b) => b.value - a.value);
+    const best = powderValues[0];
+    const compareBlock = document.createElement('div');
+    compareBlock.className = 'result';
+    compareBlock.style.background = '#e0f7fa';
+    compareBlock.textContent = `【对比分析】\n当前性价比最高的是：${best.label}（单个粉末价值：${best.value.toFixed(2)} 万）`;
+    resultDiv.appendChild(compareBlock);
+  }
+}
+</script>
+
+</body>
+</html>
